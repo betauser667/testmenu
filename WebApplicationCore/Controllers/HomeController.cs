@@ -3,10 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Net.Http.Headers;
 using Microsoft.AspNetCore.Mvc;
-using RazorEngine;
-using RazorEngine.Configuration;
-using RazorEngine.Templating;
-using RazorEngine.Text;
+using RazorLight;
 using WebApplicationCore.Models;
 
 namespace WebApplicationCore.Controllers
@@ -20,58 +17,58 @@ namespace WebApplicationCore.Controllers
 
         public IActionResult About(string id = null)
         {
-            var config = new TemplateServiceConfiguration();
-            // .. configure your instance
-
-            var service = RazorEngineService.Create(config);
-            config.Language = Language.CSharp; // VB.NET as template language.
-            config.EncodedStringFactory = new RawStringFactory(); // Raw string encoding.
-            config.EncodedStringFactory = new HtmlEncodedStringFactory(); // Html encoding.
-            config.CachingProvider = new DefaultCachingProvider(t => { });
-            Engine.Razor = service;
-
-            string template =
-            @"<!doctype html>
+            try
+            {
+                string template =
+                @"<!doctype html>
 <html>
       <head>
-        <title>Hello @Model.Name</title>
+        <title>Hello Model.Name</title>
         <script src='https://code.jquery.com/jquery-latest.min.js'></script>
       </head>
       <body>        
-<div>        <title>Hello @Model.Name !!!</title>
+<div>        <title>Hello Model.Name !!!</title>
 <div>If you want to use the static Engine class with this new configuration:</div>
 
-<p>" + id + @"</p>
-<p>@Model.id</p>
-@foreach(var x in @Model.list) {
-<li>@x</li>
-}
 <div id=""myComponentContainer"" name=""myComponentContainer"">xxx</div>
 <script>
             var container = $('#myComponentContainer');
 var b = true;
 var refreshComponent = function() {
     $.get('/Home/MyViewComponent', function(data) { console.log(data); 
-//if(b) { container.hide(); } else { container.show(); }
 container.html(data); 
-//b = !b;
 });
             };
 $(function() { window.setInterval(refreshComponent, 2000); });
-
-
 $.get('/Home/Items?type=dishes&count=12', function(data) { console.log(data); });
-
-
 </script>
-
 </div>
       </body>
     </html>";
 
-            var result = Engine.Razor.RunCompile(template, "templateKey", null, new { Name = "World", id = id, list = new List<string>() { "aaa", "bbb", "xxx" } });
 
-            return Content(result, "text/html", System.Text.Encoding.UTF8);// View();
+                // Create engine that uses entityFramework to fetch templates from db
+                // You can create project that uses your IRepository<T>
+                var project = new EntityFrameworkRazorLightProject();
+                var engine = new RazorLightEngineBuilder().UseProject(project).Build();
+
+
+                // As our key in database is integer, but engine takes string as a key - pass integer ID as a string
+                string templateKey = "2";
+                var model = new TestViewModel() { Name = "Johny", Age = 22, Id = 101, XId = id, List = new List<string>() { "xxx", "zzz", "hhh"} };
+                var result = engine.CompileRenderAsync(templateKey, model).Result;
+
+
+                //Engine.Razor.RunCompile(template, "templateKey", typeof(MyModel), new MyModel { Name = "World", Id = id, List = new List<string>() { "aaa", "bbb", "xxx" } });
+
+                return Content(result, "text/html", System.Text.Encoding.UTF8);// View();
+            }
+            catch (Exception ex)
+            {
+
+                ViewData["Message"] = ex.Message + "\r\n" + ex.StackTrace;
+                return View();
+            }
             //return View();
         }
 
@@ -143,4 +140,12 @@ $.get('/Home/Items?type=dishes&count=12', function(data) { console.log(data); })
         public Category Category;
         public List<Product> Products;
     }
+
+    public class MyModel
+    {
+        public string Name { get; internal set; }
+        public string Id { get; internal set; }
+        public List<string> List { get; internal set; }
+    }
+
 }
