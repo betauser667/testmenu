@@ -4,12 +4,20 @@ using System.Diagnostics;
 using System.Net.Http.Headers;
 using Microsoft.AspNetCore.Mvc;
 using RazorLight;
+using WebApplicationCore.Core;
+using WebApplicationCore.Data;
 using WebApplicationCore.Models;
 
 namespace WebApplicationCore.Controllers
 {
     public class HomeController : Controller
     {
+        AppDbContext _dbContext;
+        public HomeController(AppDbContext dbContext)
+        {
+            _dbContext = dbContext;
+        }
+
         public IActionResult Index()
         {
             return View();
@@ -19,47 +27,19 @@ namespace WebApplicationCore.Controllers
         {
             try
             {
-                string template =
-                @"<!doctype html>
-<html>
-      <head>
-        <title>Hello Model.Name</title>
-        <script src='https://code.jquery.com/jquery-latest.min.js'></script>
-      </head>
-      <body>        
-<div>        <title>Hello Model.Name !!!</title>
-<div>If you want to use the static Engine class with this new configuration:</div>
 
-<div id=""myComponentContainer"" name=""myComponentContainer"">xxx</div>
-<script>
-            var container = $('#myComponentContainer');
-var b = true;
-var refreshComponent = function() {
-    $.get('/Home/MyViewComponent', function(data) { console.log(data); 
-container.html(data); 
-});
-            };
-$(function() { window.setInterval(refreshComponent, 2000); });
-$.get('/Home/Items?type=dishes&count=12', function(data) { console.log(data); });
-</script>
-</div>
-      </body>
-    </html>";
 
 
                 // Create engine that uses entityFramework to fetch templates from db
                 // You can create project that uses your IRepository<T>
-                var project = new EntityFrameworkRazorLightProject();
+                var project = new EntityFrameworkRazorLightProject(_dbContext);
                 var engine = new RazorLightEngineBuilder().UseProject(project).Build();
 
 
                 // As our key in database is integer, but engine takes string as a key - pass integer ID as a string
                 string templateKey = "2";
-                var model = new TestViewModel() { Name = "Johny", Age = 22, Id = 101, XId = id, List = new List<string>() { "xxx", "zzz", "hhh"} };
+                var model = new TestViewModel() { Name = "Johny", Age = 22, Id = 101, XId = id, List = new List<string>() { "xxx", "zzz", "hhh" } };
                 var result = engine.CompileRenderAsync(templateKey, model).Result;
-
-
-                //Engine.Razor.RunCompile(template, "templateKey", typeof(MyModel), new MyModel { Name = "World", Id = id, List = new List<string>() { "aaa", "bbb", "xxx" } });
 
                 return Content(result, "text/html", System.Text.Encoding.UTF8);// View();
             }
@@ -119,33 +99,5 @@ $.get('/Home/Items?type=dishes&count=12', function(data) { console.log(data); })
         }
     }
 
-    public class baseobj
-    {
-        public int Id;
-        public string Name;
-    }
-
-    public class Product : baseobj
-    {
-        public decimal Price;
-    }
-
-    public class Category : baseobj
-    {
-        public Category Parent;
-    }
-
-    public class Dish : baseobj
-    {
-        public Category Category;
-        public List<Product> Products;
-    }
-
-    public class MyModel
-    {
-        public string Name { get; internal set; }
-        public string Id { get; internal set; }
-        public List<string> List { get; internal set; }
-    }
 
 }
