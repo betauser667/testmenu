@@ -8,6 +8,10 @@ namespace WebApplicationCore.Models
         [Key]
         public int Id { get; set; }
 
+        [MaxLength(75)]
+        [MinLength(5)]
+        public string Name { get; set; }
+
         [Required]
         public string Content { get; set; }
     }

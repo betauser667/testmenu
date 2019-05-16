@@ -35,6 +35,8 @@ namespace WebApplicationCore
                 options.MinimumSameSitePolicy = SameSiteMode.None;
             });
 
+
+
             AddTransients(services);
 
             //services.AddDbContextPool<AppDbContext>(options => options.UseMySql(Configuration.GetConnectionString("REContext"),
@@ -85,17 +87,22 @@ namespace WebApplicationCore
 
         private void AddTransients(IServiceCollection services)
         {
-            services.AddTransient(typeof(AppDbContext), (AppDbContext) =>
-            {
-                var options = new DbContextOptionsBuilder<AppDbContext>()
-              .UseInMemoryDatabase(databaseName: "TestDatabase")
-              .Options;
+            services.AddDbContext<AppDbContext>(options => options.UseInMemoryDatabase(databaseName: "TestDB"));
 
-                // Create and fill database with test data
-                var dbContext = new AppDbContext(options);
-                FillDatabase(dbContext);
-                return dbContext;
-            });
+
+            //services.AddTransient(typeof(AppDbContext), (AppDbContext) =>
+            //{
+            //    var options = new DbContextOptionsBuilder<AppDbContext>()
+            //  .UseInMemoryDatabase(databaseName: "TestDatabase")
+            //  .Options;
+
+            //    // Create and fill database with test data
+            //    var dbContext = new AppDbContext(options);
+            //    DbInitializer.Seed(dbContext);
+            //    return dbContext;
+            //});
+
+
             services.AddTransient(typeof(IConfiguration), x => Configuration);
 
             //var redisConnectionProperties = new ConfigurationOptions()
@@ -110,57 +117,7 @@ namespace WebApplicationCore
             //services.AddTransient(typeof(RuleEntriesService), typeof(RuleEntriesService));
         }
 
-        static void FillDatabase(AppDbContext dbContext)
-        {
-            dbContext.Templates.Add(new TemplateEntity()
-            {
-                Id = 1,
-                Content = @"
-                        <html>
-                            @RenderBody()
-                        </html>"
-            });
-
-            dbContext.Templates.Add(new TemplateEntity()
-            {
-                Id = 2,
-                Content = @"<!doctype html>
-    <html>
-          <head>
-            <title>Hello @Model.Name</title>
-            <script src='https://code.jquery.com/jquery-latest.min.js'></script>
-          </head>
-          <body>        
-    <div>        <title>Hello @Model.Name !!!</title>
-    <div>If you want to use the static Engine class with this new configuration:</div>
-    <p> @Model.XId </p>
-    <p> @Model.Id </p>
-    @foreach(var x in Model.List) {
-    <li> @x </li>
-    }
-    <div id=""myComponentContainer"" name=""myComponentContainer"">xxx</div>
-    <script>
-                var container = $('#myComponentContainer');
-    var b = true;
-    var refreshComponent = function() {
-        $.get('/Home/MyViewComponent', function(data) { console.log(data); 
-    container.html(data); 
-    });
-                };
-    $(function() { window.setInterval(refreshComponent, 2000); });
-    $.get('/Home/Items?type=dishes&count=12', function(data) { console.log(data); });
-    </script>
-    </div>
-          </body>
-        </html>"
-                //Content = @"
-                //    @model Samples.EntityFrameworkProject.TestViewModel
-                //    @{
-                //        Layout = 1.ToString(); //This is an ID of your layout in database
-                //     }
-                //    <body> Hello, my name is @Model.Name and I am @Model.Age </body>"
-            });
-        }
+    
 
         //class MyIReferenceResolver : IReferenceResolver
         //{

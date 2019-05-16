@@ -1,32 +1,23 @@
-﻿using RazorLight.Razor;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace WebApplicationCore.Models
 {
-    public class baseobj
+    public class Dish : BaseModel
     {
-        public int Id { get; set; }
-        public string Name { get; set; }
-    }
+        [Column(Order = 3)]
+        public string Description { get; set; }
 
-    public class Product : baseobj
-    {
+        [MaxLength(255)]
+        [Column(Order = 5)]
+        public string Image { get; set; }
+
+        [Required]
+        [Column(Order = 4)]
         public decimal Price { get; set; }
-    }
 
-    public class Category : baseobj
-    {
-        public Category Parent { get; set; }
-    }
-
-    public class Dish : baseobj
-    {
-        public Category Category { get; set; }
-        public List<Product> Products { get; set; }
+        public virtual Category Category { get; set; }
+        public virtual List<Product> Products { get; set; }
     }
 }

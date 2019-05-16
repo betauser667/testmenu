@@ -2,7 +2,9 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Net.Http.Headers;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using RazorLight;
 using WebApplicationCore.Core;
 using WebApplicationCore.Data;
@@ -23,7 +25,7 @@ namespace WebApplicationCore.Controllers
             return View();
         }
 
-        public IActionResult About(string id = null)
+        public IActionResult Preview(string id = "2")
         {
             try
             {
@@ -37,7 +39,7 @@ namespace WebApplicationCore.Controllers
 
 
                 // As our key in database is integer, but engine takes string as a key - pass integer ID as a string
-                string templateKey = "2";
+                string templateKey = id;
                 var model = new TestViewModel() { Name = "Johny", Age = 22, Id = 101, XId = id, List = new List<string>() { "xxx", "zzz", "hhh" } };
                 var result = engine.CompileRenderAsync(templateKey, model).Result;
 
@@ -59,9 +61,9 @@ namespace WebApplicationCore.Controllers
             return View();
         }
 
-        public IActionResult MyViewComponent()
+        public IActionResult GetCurrentTimeComponent()
         {
-            return ViewComponent("MyViewComponent");
+            return ViewComponent("ViewComponentCurrentTime");
         }
 
 
@@ -77,25 +79,16 @@ namespace WebApplicationCore.Controllers
         }
 
 
-        public IActionResult Items(string type, int count = 10)
+        public async Task<IActionResult> GetDishes(int count = 10)
         {
-            switch (type)
-            {
-                case "products": return new JsonResult(new { Type = type, table = new List<Product> { new Product() { Id = 11, Name = "Prod1", Price = 23.41M }, new Product() { Id = 12, Name = "Prod2", Price = 13.41M }, } });
-                case "dishes": return new JsonResult(new { Type = type, table = new List<Dish> { new Dish() { Id = 2, Name = "Dish one", Category = new Category() { Id = 10, Name = "Cat 1" }, Products = new List<Product>() { new Product() { Id = 11, Name = "Prod1", Price = 23.41M }, new Product() { Id = 12, Name = "Prod2", Price = 13.41M }, } } } });
-                case "categories": return new JsonResult(new { Type = type, table = new List<Category> { new Category() { Id = 10, Name = "Cat 10" }, new Category() { Id = 13, Name = "Cat 13" }, } });
-            }
-            return new JsonResult(new { });
-        }
-    }
-
-    [ViewComponent(Name = "MyViewComponent")]
-    public class MyViewComponent123 : ViewComponent
-    {
-        public IViewComponentResult Invoke()
-        {
-            var time = DateTime.Now.ToString("h:mm:ss");
-            return Content($"The current time is {time}");
+            var dishes = await _dbContext.Dishes.ToListAsync();
+            //switch (type)
+            //{
+            //    //case "products": return new JsonResult(new { Type = type, table = new List<Product> { new Product() { Id = 11, Name = "Prod1", Price = 23.41M }, new Product() { Id = 12, Name = "Prod2", Price = 13.41M }, } });
+            //    //case "dishes": return new JsonResult(new { Type = type, table = new List<Dish> { new Dish() { Id = 2, Name = "Dish one", Category = new Category() { Id = 10, Name = "Cat 1" }, Products = new List<Product>() { new Product() { Id = 11, Name = "Prod1", Price = 23.41M }, new Product() { Id = 12, Name = "Prod2", Price = 13.41M }, } } } });
+            //    //case "categories": return new JsonResult(new { Type = type, table = new List<Category> { new Category() { Id = 10, Name = "Cat 10" }, new Category() { Id = 13, Name = "Cat 13" }, } });
+            //}
+            return new JsonResult(dishes);
         }
     }
 
