@@ -10,22 +10,22 @@ using WebApplicationCore.Models;
 
 namespace WebApplicationCore.Controllers
 {
-    public class DishesController : Controller
+    public class TagsController : Controller
     {
         private readonly AppDbContext _context;
 
-        public DishesController(AppDbContext context)
+        public TagsController(AppDbContext context)
         {
             _context = context;
         }
 
-        // GET: Dishes
+        // GET: Tags
         public async Task<IActionResult> Index()
         {
-            return View(await _context.Dishes.ToListAsync());
+            return View(await _context.Tag.ToListAsync());
         }
 
-        // GET: Dishes/Details/5
+        // GET: Tags/Details/5
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null)
@@ -33,39 +33,39 @@ namespace WebApplicationCore.Controllers
                 return NotFound();
             }
 
-            var dish = await _context.Dishes
+            var tag = await _context.Tag
                 .FirstOrDefaultAsync(m => m.Id == id);
-            if (dish == null)
+            if (tag == null)
             {
                 return NotFound();
             }
 
-            return View(dish);
+            return View(tag);
         }
 
-        // GET: Dishes/Create
+        // GET: Tags/Create
         public IActionResult Create()
         {
-            return View(new Dish() { CreatedDate = DateTime.Now });
+            return View(new Tag() { CreatedDate = DateTime.Now });
         }
 
-        // POST: Dishes/Create
+        // POST: Tags/Create
         // To protect from overposting attacks, please enable the specific properties you want to bind to, for 
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Description,Image,Price,Id,Name,CreatedDate")] Dish dish)
+        public async Task<IActionResult> Create([Bind("Id,Name,CreatedDate")] Tag tag)
         {
             if (ModelState.IsValid)
             {
-                _context.Add(dish);
+                _context.Add(tag);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            return View(dish);
+            return View(tag);
         }
 
-        // GET: Dishes/Edit/5
+        // GET: Tags/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
@@ -73,22 +73,22 @@ namespace WebApplicationCore.Controllers
                 return NotFound();
             }
 
-            var dish = await _context.Dishes.FindAsync(id);
-            if (dish == null)
+            var tag = await _context.Tag.FindAsync(id);
+            if (tag == null)
             {
                 return NotFound();
             }
-            return View(dish);
+            return View(tag);
         }
 
-        // POST: Dishes/Edit/5
+        // POST: Tags/Edit/5
         // To protect from overposting attacks, please enable the specific properties you want to bind to, for 
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Description,Image,Price,Id,Name,CreatedDate,Tags")] Dish dish)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,Name,CreatedDate")] Tag tag)
         {
-            if (id != dish.Id)
+            if (id != tag.Id)
             {
                 return NotFound();
             }
@@ -97,12 +97,12 @@ namespace WebApplicationCore.Controllers
             {
                 try
                 {
-                    _context.Update(dish);
+                    _context.Update(tag);
                     await _context.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!DishExists(dish.Id))
+                    if (!TagExists(tag.Id))
                     {
                         return NotFound();
                     }
@@ -113,10 +113,10 @@ namespace WebApplicationCore.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            return View(dish);
+            return View(tag);
         }
 
-        // GET: Dishes/Delete/5
+        // GET: Tags/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null)
@@ -124,30 +124,30 @@ namespace WebApplicationCore.Controllers
                 return NotFound();
             }
 
-            var dish = await _context.Dishes
+            var tag = await _context.Tag
                 .FirstOrDefaultAsync(m => m.Id == id);
-            if (dish == null)
+            if (tag == null)
             {
                 return NotFound();
             }
 
-            return View(dish);
+            return View(tag);
         }
 
-        // POST: Dishes/Delete/5
+        // POST: Tags/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var dish = await _context.Dishes.FindAsync(id);
-            _context.Dishes.Remove(dish);
+            var tag = await _context.Tag.FindAsync(id);
+            _context.Tag.Remove(tag);
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
 
-        private bool DishExists(int id)
+        private bool TagExists(int id)
         {
-            return _context.Dishes.Any(e => e.Id == id);
+            return _context.Tag.Any(e => e.Id == id);
         }
     }
 }

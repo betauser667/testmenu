@@ -18,5 +18,7 @@ namespace WebApplicationCore.Data
         public DbSet<Product> Products { get; set; }
 
         public DbSet<TemplateEntity> Templates { get; set; }
+
+        public DbSet<WebApplicationCore.Models.Tag> Tag { get; set; }
     }
 }

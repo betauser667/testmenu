@@ -19,5 +19,6 @@ namespace WebApplicationCore.Models
 
         public virtual Category Category { get; set; }
         public virtual List<Product> Products { get; set; }
+        public virtual List<Tag> Tags { get; set; }
     }
 }

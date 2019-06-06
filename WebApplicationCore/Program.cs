@@ -47,11 +47,11 @@ namespace WebApplicationCore
         public static IWebHostBuilder CreateWebHostBuilder(string[] args) =>
             WebHost.CreateDefaultBuilder(args).ConfigureKestrel(options =>
             {
-                options.ListenAnyIP(5001, listenOptions =>
-                {
-                    listenOptions.Protocols = Microsoft.AspNetCore.Server.Kestrel.Core.HttpProtocols.Http1AndHttp2;
-                    listenOptions.UseHttps();
-                });
+                //options.ListenAnyIP(5001, listenOptions =>
+                //{
+                    //listenOptions.Protocols = Microsoft.AspNetCore.Server.Kestrel.Core.HttpProtocols.Http1AndHttp2;
+                    //listenOptions.UseHttps();
+                //});
             })
                 .UseStartup<Startup>();
     }
