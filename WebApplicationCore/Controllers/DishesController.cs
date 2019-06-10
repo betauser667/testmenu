@@ -20,9 +20,15 @@ namespace WebApplicationCore.Controllers
         }
 
         // GET: Dishes
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(int? id)
         {
-            return View(await _context.Dishes.ToListAsync());
+            var tags = _context.Tags.ToList();
+            ViewData["AllTags"] = tags;
+            var tl = await _context.Dishes.Include(d => d.Tags).ToListAsync();
+            var tl1 = await _context.Dishes.Include(d => d.Tags).Where(d => d.Tags.Any(t => t.TagId == id)).ToListAsync();
+
+            var list = await _context.Dishes.Include(d => d.Tags).Where(d => id == null || d.Tags.Any(t => t.TagId == id)).ToListAsync();
+            return View(list);
         }
 
         // GET: Dishes/Details/5
@@ -33,7 +39,7 @@ namespace WebApplicationCore.Controllers
                 return NotFound();
             }
 
-            var dish = await _context.Dishes
+            var dish = await _context.Dishes.Include(d => d.Tags)
                 .FirstOrDefaultAsync(m => m.Id == id);
             if (dish == null)
             {
@@ -46,7 +52,9 @@ namespace WebApplicationCore.Controllers
         // GET: Dishes/Create
         public IActionResult Create()
         {
-            return View(new Dish() { CreatedDate = DateTime.Now });
+            var tags = _context.Tags.ToList();
+            ViewData["AllTags"] = tags;
+            return View(new Dish() { CreatedDate = DateTime.Now, Tags = new List<DishTag>() });
         }
 
         // POST: Dishes/Create
@@ -54,13 +62,28 @@ namespace WebApplicationCore.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Description,Image,Price,Id,Name,CreatedDate")] Dish dish)
+        public async Task<IActionResult> Create([Bind("Description,Image,Price,Id,Name,CreatedDate, TTag")] Dish dish, string selectedTags)
         {
             if (ModelState.IsValid)
             {
+                if (selectedTags != null)
+                {
+                    var tagIds = selectedTags.Split(",", StringSplitOptions.RemoveEmptyEntries);
+                    var listTags = _context.Tags.Where(t => tagIds.Any(it => it == t.Id.ToString())).ToList();
+                    dish.Tags = listTags.Select(t => new DishTag() { Dish = dish, Tag = t }).ToList();
+                }
                 _context.Add(dish);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
+            }
+            else
+            {
+                if (selectedTags != null)
+                {
+                    var tagIds = selectedTags.Split(",", StringSplitOptions.RemoveEmptyEntries);
+                    var listTags = _context.Tags.Where(t => tagIds.Any(it => it == t.Id.ToString())).ToList();
+                    dish.Tags = listTags.Select(t => new DishTag() { Dish = dish, Tag = t }).ToList();
+                }
             }
             return View(dish);
         }
@@ -73,11 +96,14 @@ namespace WebApplicationCore.Controllers
                 return NotFound();
             }
 
-            var dish = await _context.Dishes.FindAsync(id);
+            var dish = await _context.Dishes.Include(d => d.Tags).FirstOrDefaultAsync(d => d.Id == id);
             if (dish == null)
             {
                 return NotFound();
             }
+            var tags = _context.Tags.ToList();
+            ViewData["AllTags"] = tags;
+
             return View(dish);
         }
 
@@ -86,7 +112,7 @@ namespace WebApplicationCore.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Description,Image,Price,Id,Name,CreatedDate,Tags")] Dish dish)
+        public async Task<IActionResult> Edit(int id, [Bind("Description,Image,Price,Id,Name,CreatedDate, TTag")] Dish dish, string selectedTags)
         {
             if (id != dish.Id)
             {
@@ -97,7 +123,23 @@ namespace WebApplicationCore.Controllers
             {
                 try
                 {
-                    _context.Update(dish);
+                    var dishDb = await _context.Dishes.Include(d => d.Tags).FirstOrDefaultAsync(d => d.Id == id);
+
+                    dishDb.Image = dish.Image;
+                    dishDb.Name = dish.Name;
+                    dishDb.Price = dish.Price;
+                    dishDb.Products = dish.Products;
+                    dishDb.Category = dish.Category;
+                    dishDb.Description = dish.Description;
+
+                    if (selectedTags != null)
+                    {
+                        // something changed
+                        var tagIds = selectedTags?.Split(",", StringSplitOptions.RemoveEmptyEntries) ?? new string[0];
+                        var listTags = _context.Tags.Where(t => tagIds.Any(it => it == t.Id.ToString())).ToList();
+                        dishDb.Tags = listTags.Select(t => new DishTag() { Dish = dish, Tag = t }).ToList();
+                    }
+                    _context.Update(dishDb);
                     await _context.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)
@@ -112,6 +154,15 @@ namespace WebApplicationCore.Controllers
                     }
                 }
                 return RedirectToAction(nameof(Index));
+            }
+            else
+            {
+                if (selectedTags != null)
+                {
+                    var tagIds = selectedTags.Split(",", StringSplitOptions.RemoveEmptyEntries);
+                    var listTags = _context.Tags.Where(t => tagIds.Any(it => it == t.Id.ToString())).ToList();
+                    dish.Tags = listTags.Select(t => new DishTag() { Dish = dish, Tag = t }).ToList();
+                }
             }
             return View(dish);
         }

@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using WebApplicationCore.Models;
 
 namespace WebApplicationCore.Data
@@ -11,7 +12,7 @@ namespace WebApplicationCore.Data
             {
                 dbContext.Templates.Add(new TemplateEntity()
                 {
-                    Name ="DateTime Tempalte",
+                    Name = "DateTime Tempalte",
                     Content = @"<html><head>
 <title>Hello @Model.Name !!!</title>
 <script src='https://code.jquery.com/jquery-latest.min.js'></script>
@@ -64,9 +65,44 @@ for (var i = 0; i < data.length; i++)
 </div>
 </body>
 </html>"
-});
+                });
+                dbContext.SaveChanges();
+
+                dbContext.Tags.Add(new Tag() { Name = "Tag1", CreatedDate = DateTime.Now });
+                dbContext.Tags.Add(new Tag() { Name = "Tag2", CreatedDate = DateTime.Now });
+                dbContext.Tags.Add(new Tag() { Name = "Tag3", CreatedDate = DateTime.Now });
+                dbContext.SaveChanges();
+
+                dbContext.Dishes.Add(new Dish() { Name = "Dish12", CreatedDate = DateTime.Now, Price = 100, Description = "Description1" });
+                dbContext.Dishes.Add(new Dish() { Name = "Dish23", CreatedDate = DateTime.Now, Price = 120, Description = "Description2" });
+                dbContext.Dishes.Add(new Dish() { Name = "Dish13", CreatedDate = DateTime.Now, Price = 150, Description = "Description3" });
+                dbContext.Dishes.Add(new Dish() { Name = "Dish123", CreatedDate = DateTime.Now, Price = 250, Description = "Description4" });
+                dbContext.SaveChanges();
+
+                var dish = dbContext.Dishes.Find(1);
+                dish.Tags = new System.Collections.Generic.List<DishTag>();
+                dish.Tags.Add(new DishTag() { Dish = dish, Tag = dbContext.Tags.Find(1) });
+                dish.Tags.Add(new DishTag() { Dish = dish, Tag = dbContext.Tags.Find(2) });
+
+                dish = dbContext.Dishes.Find(2);
+                dish.Tags = new System.Collections.Generic.List<DishTag>();
+                dish.Tags.Add(new DishTag() { Dish = dish, Tag = dbContext.Tags.Find(2) });
+                dish.Tags.Add(new DishTag() { Dish = dish, Tag = dbContext.Tags.Find(3) });
+
+                dish = dbContext.Dishes.Find(3);
+                dish.Tags = new System.Collections.Generic.List<DishTag>();
+                dish.Tags.Add(new DishTag() { Dish = dish, Tag = dbContext.Tags.Find(1) });
+                dish.Tags.Add(new DishTag() { Dish = dish, Tag = dbContext.Tags.Find(3) });
+
+                dish = dbContext.Dishes.Find(4);
+                dish.Tags = new System.Collections.Generic.List<DishTag>();
+                dish.Tags.Add(new DishTag() { Dish = dish, Tag = dbContext.Tags.Find(1) });
+                dish.Tags.Add(new DishTag() { Dish = dish, Tag = dbContext.Tags.Find(2) });
+                dish.Tags.Add(new DishTag() { Dish = dish, Tag = dbContext.Tags.Find(3) });
                 dbContext.SaveChanges();
             }
+
+
 
 
         }

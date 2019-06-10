@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data.Common;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
@@ -87,6 +88,7 @@ namespace WebApplicationCore
 
         private void AddTransients(IServiceCollection services)
         {
+            //services.AddDbContext<AppDbContext>(options => options.UseSqlServer(@"Server=.\SQLEXPRESS;Initial Catalog=men;Integrated Security=True;MultipleActiveResultSets=True;Connection Timeout=4;"));
             services.AddDbContext<AppDbContext>(options => options.UseInMemoryDatabase(databaseName: "TestDB"));
 
 

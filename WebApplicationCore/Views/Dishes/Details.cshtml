@@ -37,6 +37,15 @@
         <dt>
             @Html.DisplayNameFor(model => model.Image)
         </dt>
+        <dt>
+            @Html.DisplayNameFor(model => model.Tags)
+        </dt>
+        <dd>
+            @foreach (var t in Model.Tags)
+            {
+                @Html.DisplayFor(model => t.Tag.Name);
+            }
+        </dd>
         <dd>
             @Html.DisplayFor(model => model.Image) <br />
             <img src="@Url.Content(Model.Image)" alt="Image" />
