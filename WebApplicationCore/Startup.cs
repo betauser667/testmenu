@@ -51,7 +51,10 @@ namespace WebApplicationCore
                 c.SwaggerDoc("Main", new Microsoft.OpenApi.Models.OpenApiInfo { Title = "My API", Version = "Main" });
             });
 
-            services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
+            services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2)
+                .AddJsonOptions(
+                    options => options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore
+                );
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -119,7 +122,7 @@ namespace WebApplicationCore
             //services.AddTransient(typeof(RuleEntriesService), typeof(RuleEntriesService));
         }
 
-    
+
 
         //class MyIReferenceResolver : IReferenceResolver
         //{

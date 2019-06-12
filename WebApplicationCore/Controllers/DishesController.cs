@@ -39,7 +39,7 @@ namespace WebApplicationCore.Controllers
                 return NotFound();
             }
 
-            var dish = await _context.Dishes.Include(d => d.Tags)
+            var dish = await _context.Dishes.Include(d => d.Tags).ThenInclude(t => t.Tag)
                 .FirstOrDefaultAsync(m => m.Id == id);
             if (dish == null)
             {

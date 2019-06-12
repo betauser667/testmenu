@@ -23,16 +23,18 @@ namespace WebApplicationCore.Controllers.Api
 
         // GET: api/Dishes
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Dish>>> GetDishes()
+        public async Task<ActionResult<List<Dish>>> GetDishes()
         {
-            return await _context.Dishes.Include(d => d.Tags).ToListAsync();
+            var list = await _context.Dishes.Include(d => d.Tags).ThenInclude(t => t.Tag).ToListAsync();
+
+            return list;
         }
 
         // GET: api/Dishes/5
         [HttpGet("{id}")]
         public async Task<ActionResult<Dish>> GetDish(int id)
         {
-            var dish = await _context.Dishes.Include(d => d.Tags).Include(d => d.Products).Include(d => d.Category).FirstOrDefaultAsync(d => d.Id == id);
+            var dish = await _context.Dishes.Include(d => d.Tags).ThenInclude(t => t.Tag).Include(d => d.Products).Include(d => d.Category).FirstOrDefaultAsync(d => d.Id == id);
 
             if (dish == null)
             {

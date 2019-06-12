@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using System.Net.Http.Headers;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
@@ -81,14 +82,22 @@ namespace WebApplicationCore.Controllers
 
         public async Task<IActionResult> GetDishes(int count = 10)
         {
-            var dishes = await _dbContext.Dishes.ToListAsync();
+            try
+            {
+                var dishes = await _dbContext.Dishes.Include(d => d.Tags).ThenInclude(t => t.Tag).ToListAsync();
+                return new JsonResult(dishes);
+            }
+            catch(Exception ex)
+            {
+                throw ex;
+            }
             //switch (type)
             //{
             //    //case "products": return new JsonResult(new { Type = type, table = new List<Product> { new Product() { Id = 11, Name = "Prod1", Price = 23.41M }, new Product() { Id = 12, Name = "Prod2", Price = 13.41M }, } });
             //    //case "dishes": return new JsonResult(new { Type = type, table = new List<Dish> { new Dish() { Id = 2, Name = "Dish one", Category = new Category() { Id = 10, Name = "Cat 1" }, Products = new List<Product>() { new Product() { Id = 11, Name = "Prod1", Price = 23.41M }, new Product() { Id = 12, Name = "Prod2", Price = 13.41M }, } } } });
             //    //case "categories": return new JsonResult(new { Type = type, table = new List<Category> { new Category() { Id = 10, Name = "Cat 10" }, new Category() { Id = 13, Name = "Cat 13" }, } });
             //}
-            return new JsonResult(dishes);
+            
         }
     }
 
