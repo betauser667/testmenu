@@ -7,11 +7,12 @@
 <h2>Index</h2>
 
 <p>
-    <a asp-action="Create">Create New</a>
+    <a asp-action="Create">Create New</a><span>&nbsp;</span>
     @foreach (var t in (IEnumerable<Tag>)ViewData["AllTags"])
     {
-        @Html.ActionLink(t.Name, "Index", new { id = t.Id });
+        @Html.ActionLink(t.Name, "Index", new { id = t.Id });<span>&nbsp;</span>
     }
+    <a asp-action="Index" asp-route-id="">All Dishes</a><span>&nbsp;</span>
 </p>
 <table class="table">
     <thead>

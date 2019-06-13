@@ -41,14 +41,33 @@
             @Html.DisplayNameFor(model => model.Tags)
         </dt>
         <dd>
-            @foreach (var t in Model.Tags)
+            @if (Model.Tags != null)
             {
-                @Html.DisplayFor(model => t.Tag.Name);
+                foreach (var t in Model.Tags)
+                {
+                    @Html.DisplayFor(model => t.Tag.Name);<br />
+                }
             }
         </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Ingredients)
+        </dt>
+        <dd>
+            @if (Model.Ingredients != null)
+            {
+                foreach (var t in Model.Ingredients)
+                {
+                    @Html.DisplayFor(model => t.Ingredient.Name);<span>&nbsp;</span>@Html.DisplayFor(model => t.Volume);<span>&nbsp;&nbsp;&nbsp;</span>@Html.DisplayFor(model => t.Ingredient.Calories);<span>Kkal in 100 gr</span><br />
+                    <img src="@Url.Content(t.Ingredient.Image)" alt="Ingredient" width="200" /><br />
+                }
+            }
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Image)
+        </dt>
         <dd>
             @Html.DisplayFor(model => model.Image) <br />
-            <img src="@Url.Content(Model.Image)" alt="Image" />
+            <img src="@Url.Content(Model.Image)" alt="Image" width="600" /><br />
         </dd>
 
     </dl>

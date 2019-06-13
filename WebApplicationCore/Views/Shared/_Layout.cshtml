@@ -36,6 +36,7 @@
                     <li><a asp-area="" asp-controller="TemplateEntities" asp-action="Index">Templates</a></li>
                     <li><a asp-area="" asp-controller="Dishes" asp-action="Index">Dishes</a></li>
                     <li><a asp-area="" asp-controller="Tags" asp-action="Index">Tags</a></li>
+                    <li><a asp-area="" asp-controller="Ingredients" asp-action="Index">Ingredients</a></li>
                 </ul>
             </div>
         </div>
@@ -47,7 +48,7 @@
         @RenderBody()
         <hr />
         <footer>
-            <p>&copy; 2019 - WebApplicationCore</p>
+            <p>&copy; 2019 - Test menu, Version @this.GetType().Assembly.GetName().Version.ToString()</p>
         </footer>
     </div>
 

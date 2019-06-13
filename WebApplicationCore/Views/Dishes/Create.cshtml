@@ -50,7 +50,7 @@
                 <script>
                     function getSelected() {
                         var sList = "";
-                        $('input[type=checkbox]').each(function () {
+                        $('#alltags input[type=checkbox]').each(function () {
                             if (this.checked) {
                                 sList += this.value + ",";
                             }
@@ -60,24 +60,46 @@
                 </script>
                 @Html.ValidationMessageFor(model => model.Tags)
             </div>
-
+            <div class="form-group">
+                <div>
+                    @foreach (var item in (IEnumerable<Ingredient>)ViewData["AllIngredients"])
+                    {
+                        <label>
+                            <input type="checkbox" name="allIngredient" value="@item.Id" onchange="getSelected()" @if (Model.Ingredients.Any(t => t.IngredientId == item.Id)) { <text> checked</text> } /> @item.Name
+                        </label>
+                    }
+                </div>
+                @Html.Hidden("selectedIngredients")
+                <script>
+                    function getSelected() {
+                        var sList = "";
+                        $('#allIngredient input[type=checkbox]').each(function () {
+                            if (this.checked) {
+                                sList += this.value + ",";
+                            }
+                        });
+                        $("#selectedIngredient").val(sList);
+                    }
+                </script>
+                @Html.ValidationMessageFor(model => model.Ingredients)
+            </div>
 
             @*<div class="form-group">
-                    <label asp-for="Tags" class="control-label"></label>
-                    <input asp-for="Tags" class="form-control" type="hidden" />
-                    <ul>
-                        @Html.DropDownListFor(model => model.Tags, Model.Tags.Select(t => new SelectListItem() { Value = t.Id.ToString(), Text = t.Name }), "All tags", null);
+            <label asp-for="Tags" class="control-label"></label>
+            <input asp-for="Tags" class="form-control" type="hidden" />
+            <ul>
+                @Html.DropDownListFor(model => model.Tags, Model.Tags.Select(t => new SelectListItem() { Value = t.Id.ToString(), Text = t.Name }), "All tags", null);
 
-                        @foreach (var tag in Model.Tags)
-                        {
-                            var checkedFlad = Model.Tags != null && Model.Tags.Any(t => t.Id == tag.Id);
-                            <li>
-                                <input type="checkbox" id="@tag.Name" asp-for="@checkedFlad" value="@tag.Id" checked="@checkedFlad" />
-                                <label for="@tag.Name">@tag.Name</label>
-                            </li>
-                        }
-                    </ul>
-                </div>*@
+                @foreach (var tag in Model.Tags)
+                {
+                    var checkedFlad = Model.Tags != null && Model.Tags.Any(t => t.Id == tag.Id);
+                    <li>
+                        <input type="checkbox" id="@tag.Name" asp-for="@checkedFlad" value="@tag.Id" checked="@checkedFlad" />
+                        <label for="@tag.Name">@tag.Name</label>
+                    </li>
+                }
+            </ul>
+        </div>*@
             <div class="form-group">
                 <input type="submit" value="Create" class="btn btn-default" />
             </div>

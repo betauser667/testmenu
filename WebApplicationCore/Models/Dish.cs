@@ -9,7 +9,7 @@ namespace WebApplicationCore.Models
         [Column(Order = 3)]
         public string Description { get; set; }
 
-        [MaxLength(255)]
+        [MaxLength(512)]
         [Column(Order = 5)]
         public string Image { get; set; }
 
@@ -18,7 +18,8 @@ namespace WebApplicationCore.Models
         public decimal Price { get; set; }
 
         public virtual Category Category { get; set; }
-        public virtual List<Product> Products { get; set; }
         public virtual List<DishTag> Tags { get; set; }
+        public virtual List<DishIngredient> Ingredients { get; set; }
     }
+
 }

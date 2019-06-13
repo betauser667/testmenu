@@ -37,21 +37,21 @@
                 <label asp-for="CreatedDate" class="control-label"></label>
                 <input asp-for="CreatedDate" class="form-control" />
                 <span asp-validation-for="CreatedDate" class="text-danger"></span>
-            </div>            
+            </div>
             <div class="form-group">
                 <div>
                     @foreach (var item in (IEnumerable<Tag>)ViewData["AllTags"])
                     {
                         <label>
-                            <input type="checkbox" name="alltags" value="@item.Id" onchange="getSelected()" @if (Model.Tags.Any(t => t.TagId == item.Id)) { <text> checked</text> } /> @item.Name
+                            <input type="checkbox" name="alltags" value="@item.Id" onchange="getSelectedTag()" @if (Model.Tags.Any(t => t.TagId == item.Id)) { <text> checked</text> } /> @item.Name
                         </label>
                     }
                 </div>
                 @Html.Hidden("selectedTags")
                 <script>
-                    function getSelected() {
+                    function getSelectedTag() {
                         var sList = "";
-                        $('input[type=checkbox]').each(function () {
+                        $('input[name="alltags"]:checkbox').each(function () {
                             if (this.checked) {
                                 sList += this.value + ",";
                             }
@@ -60,6 +60,29 @@
                     }
                 </script>
                 @Html.ValidationMessageFor(model => model.Tags)
+            </div>
+            <div class="form-group">
+                <div>
+                    @foreach (var item in (IEnumerable<Ingredient>)ViewData["AllIngredients"])
+                    {
+                        <label>
+                            <input type="checkbox" name="allIngredient" value="@item.Id" onchange="getSelectedIng()" @if (Model.Ingredients != null && Model.Ingredients.Any(t => t.IngredientId == item.Id)) { <text> checked</text> } /> @item.Name
+                        </label>
+                    }
+                </div>
+                @Html.Hidden("selectedIngredients")
+                <script>
+                    function getSelectedIng() {
+                        var sList = "";
+                        $('input[name="allIngredient"]:checkbox').each(function () {
+                            if (this.checked) {
+                                sList += this.value + ",";
+                            }
+                        });
+                        $("#selectedIngredients").val(sList);
+                    }
+                </script>
+                @Html.ValidationMessageFor(model => model.Ingredients)
             </div>
             <div class="form-group">
                 <input type="submit" value="Save" class="btn btn-default" />

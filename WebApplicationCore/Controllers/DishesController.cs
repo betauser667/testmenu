@@ -22,12 +22,12 @@ namespace WebApplicationCore.Controllers
         // GET: Dishes
         public async Task<IActionResult> Index(int? id)
         {
-            var tags = _context.Tags.ToList();
+            var tags = await _context.Tags.ToListAsync();
             ViewData["AllTags"] = tags;
-            var tl = await _context.Dishes.Include(d => d.Tags).ToListAsync();
-            var tl1 = await _context.Dishes.Include(d => d.Tags).Where(d => d.Tags.Any(t => t.TagId == id)).ToListAsync();
+            var ingredients = await _context.Ingredients.ToListAsync();
+            ViewData["AllIngredients"] = ingredients;
 
-            var list = await _context.Dishes.Include(d => d.Tags).Where(d => id == null || d.Tags.Any(t => t.TagId == id)).ToListAsync();
+            var list = await _context.Dishes.Include(d => d.Tags).Where(d => id == null || d.Tags.Any(t => id == t.TagId)).ToListAsync();
             return View(list);
         }
 
@@ -39,7 +39,9 @@ namespace WebApplicationCore.Controllers
                 return NotFound();
             }
 
-            var dish = await _context.Dishes.Include(d => d.Tags).ThenInclude(t => t.Tag)
+            var dish = await _context.Dishes
+                .Include(d => d.Tags).ThenInclude(t => t.Tag)
+                .Include(d => d.Ingredients).ThenInclude(t => t.Ingredient)
                 .FirstOrDefaultAsync(m => m.Id == id);
             if (dish == null)
             {
@@ -50,10 +52,12 @@ namespace WebApplicationCore.Controllers
         }
 
         // GET: Dishes/Create
-        public IActionResult Create()
+        public async Task<IActionResult> Create()
         {
             var tags = _context.Tags.ToList();
             ViewData["AllTags"] = tags;
+            var ingredients = await _context.Ingredients.ToListAsync();
+            ViewData["AllIngredients"] = ingredients;
             return View(new Dish() { CreatedDate = DateTime.Now, Tags = new List<DishTag>() });
         }
 
@@ -62,7 +66,7 @@ namespace WebApplicationCore.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Description,Image,Price,Id,Name,CreatedDate, TTag")] Dish dish, string selectedTags)
+        public async Task<IActionResult> Create([Bind("Description,Image,Price,Id,Name,CreatedDate, TTag")] Dish dish, string selectedTags, string selectedIngredients)
         {
             if (ModelState.IsValid)
             {
@@ -71,6 +75,12 @@ namespace WebApplicationCore.Controllers
                     var tagIds = selectedTags.Split(",", StringSplitOptions.RemoveEmptyEntries);
                     var listTags = _context.Tags.Where(t => tagIds.Any(it => it == t.Id.ToString())).ToList();
                     dish.Tags = listTags.Select(t => new DishTag() { Dish = dish, Tag = t }).ToList();
+                }
+                if (selectedIngredients != null)
+                {
+                    var iIds = selectedIngredients.Split(",", StringSplitOptions.RemoveEmptyEntries);
+                    var listIngredients = _context.Ingredients.Where(t => iIds.Any(it => it == t.Id.ToString())).ToList();
+                    dish.Ingredients = listIngredients.Select(t => new DishIngredient() { Dish = dish, Ingredient = t }).ToList();
                 }
                 _context.Add(dish);
                 await _context.SaveChangesAsync();
@@ -84,6 +94,12 @@ namespace WebApplicationCore.Controllers
                     var listTags = _context.Tags.Where(t => tagIds.Any(it => it == t.Id.ToString())).ToList();
                     dish.Tags = listTags.Select(t => new DishTag() { Dish = dish, Tag = t }).ToList();
                 }
+                if (selectedIngredients != null)
+                {
+                    var iIds = selectedIngredients.Split(",", StringSplitOptions.RemoveEmptyEntries);
+                    var listIngredients = _context.Ingredients.Where(t => iIds.Any(it => it == t.Id.ToString())).ToList();
+                    dish.Ingredients = listIngredients.Select(t => new DishIngredient() { Dish = dish, Ingredient = t }).ToList();
+                }
             }
             return View(dish);
         }
@@ -96,14 +112,15 @@ namespace WebApplicationCore.Controllers
                 return NotFound();
             }
 
-            var dish = await _context.Dishes.Include(d => d.Tags).FirstOrDefaultAsync(d => d.Id == id);
+            var dish = await _context.Dishes.Include(d => d.Tags).Include(d => d.Ingredients).FirstOrDefaultAsync(d => d.Id == id);
             if (dish == null)
             {
                 return NotFound();
             }
             var tags = _context.Tags.ToList();
             ViewData["AllTags"] = tags;
-
+            var ingredients = await _context.Ingredients.ToListAsync();
+            ViewData["AllIngredients"] = ingredients;
             return View(dish);
         }
 
@@ -112,7 +129,7 @@ namespace WebApplicationCore.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Description,Image,Price,Id,Name,CreatedDate, TTag")] Dish dish, string selectedTags)
+        public async Task<IActionResult> Edit(int id, [Bind("Description,Image,Price,Id,Name,CreatedDate, TTag")] Dish dish, string selectedTags, string selectedIngredients)
         {
             if (id != dish.Id)
             {
@@ -128,7 +145,6 @@ namespace WebApplicationCore.Controllers
                     dishDb.Image = dish.Image;
                     dishDb.Name = dish.Name;
                     dishDb.Price = dish.Price;
-                    dishDb.Products = dish.Products;
                     dishDb.Category = dish.Category;
                     dishDb.Description = dish.Description;
 
@@ -138,6 +154,12 @@ namespace WebApplicationCore.Controllers
                         var tagIds = selectedTags?.Split(",", StringSplitOptions.RemoveEmptyEntries) ?? new string[0];
                         var listTags = _context.Tags.Where(t => tagIds.Any(it => it == t.Id.ToString())).ToList();
                         dishDb.Tags = listTags.Select(t => new DishTag() { Dish = dish, Tag = t }).ToList();
+                    }
+                    if (selectedIngredients != null)
+                    {
+                        var iIds = selectedIngredients.Split(",", StringSplitOptions.RemoveEmptyEntries);
+                        var listIngredients = _context.Ingredients.Where(t => iIds.Any(it => it == t.Id.ToString())).ToList();
+                        dish.Ingredients = listIngredients.Select(t => new DishIngredient() { Dish = dish, Ingredient = t }).ToList();
                     }
                     _context.Update(dishDb);
                     await _context.SaveChangesAsync();
@@ -162,6 +184,12 @@ namespace WebApplicationCore.Controllers
                     var tagIds = selectedTags.Split(",", StringSplitOptions.RemoveEmptyEntries);
                     var listTags = _context.Tags.Where(t => tagIds.Any(it => it == t.Id.ToString())).ToList();
                     dish.Tags = listTags.Select(t => new DishTag() { Dish = dish, Tag = t }).ToList();
+                }
+                if (selectedIngredients != null)
+                {
+                    var iIds = selectedIngredients.Split(",", StringSplitOptions.RemoveEmptyEntries);
+                    var listIngredients = _context.Ingredients.Where(t => iIds.Any(it => it == t.Id.ToString())).ToList();
+                    dish.Ingredients = listIngredients.Select(t => new DishIngredient() { Dish = dish, Ingredient = t }).ToList();
                 }
             }
             return View(dish);
